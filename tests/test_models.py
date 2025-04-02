@@ -26,6 +26,7 @@ from mfai.torch.models import (
 from mfai.torch import padding
 from mfai.torch.models.deeplabv3 import DeepLabV3Plus
 from mfai.torch.models.half_unet import HalfUNet
+from mfai.torch.models.unet_diffusion import UnetDiffusion
 
 
 def to_numpy(tensor):
@@ -227,3 +228,36 @@ def test_autopad_models(model_class):
     net = model_class(in_channels=C, out_channels=1, input_shape=(64,65), settings=settings)
     
     net(input_data) # assert it does not fail
+
+def train_model_diffusion(model: torch.nn.Module, input_shape: Tuple[int, ...]):
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+    loss_fn = torch.nn.MSELoss()
+
+    ds = FakeSumDataset(input_shape)
+
+    training_loader = torch.utils.data.DataLoader(ds, batch_size=2)
+
+    # Simulate 2 EPOCHS of training
+    for _ in range(2):
+        for _, data in enumerate(training_loader):
+            # Every data instance is an input + label pair
+            inputs, targets = data
+
+            # Zero your gradients for every batch!
+            optimizer.zero_grad()
+
+            # Make predictions for this batch
+            outputs = model(inputs) #MUST IMPLEMENT T
+
+            # Compute the loss and its gradients
+            loss = loss_fn(outputs, targets)
+            loss.backward()
+
+            # Adjust learning weights
+            optimizer.step()
+
+    # Make a prediction in eval mode
+    model.eval()
+    sample = ds[0][0].unsqueeze(0)
+    model(sample)
+    return model
