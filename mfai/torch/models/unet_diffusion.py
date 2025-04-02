@@ -11,7 +11,7 @@ from mfai.torch.models.base import ModelABC, ModelType
 from torch import nn
 
 #from mfai.torch.models.unet import UNet #importing base unet from unet.py. Replaces UNet class in original code
-from nn import MSELoss as diffusion_loss #loss function in torch.nn identical to diffusion_loss in original code
+from torch.nn import MSELoss as diffusion_loss #loss function in torch.nn identical to diffusion_loss in original code
 
 class UNet(nn.Module): #copied from original code; maybe redundant with unet.py class
     def __init__(self, input_channels, output_channels, base_channels=64):
