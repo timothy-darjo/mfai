@@ -109,3 +109,12 @@ class UnetDiffusion(ModelABC, nn.Module):
 
         self.unet = UNet(input_channels=in_channels, output_channels=out_channels, base_channels=settings.base_channels)
         self.noise_scheduler = NoiseScheduler(timesteps=1000)
+    
+    def forward(self, x, t):
+
+        noise_level = self.noise_scheduler.get_noise_level(t)
+        noise_level = noise_level.to(x.device)
+
+        noisy_x = x + noise_level * torch.randn_like(x)
+        predicted_noise = self.unet(noisy_x)
+        return predicted_noise
