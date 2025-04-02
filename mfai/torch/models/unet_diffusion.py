@@ -10,7 +10,7 @@ import torch
 from mfai.torch.models.base import ModelABC, ModelType
 from torch import nn
 
-from mfai.torch.models.unet import UNet #importing base unet from unet.py. Replaces UNet class in original code
+#from mfai.torch.models.unet import UNet #importing base unet from unet.py. Replaces UNet class in original code
 
 def diffusion_loss(predicted_noise, true_noise):
     #Mean Squared Error loss for predicted vs true noise
