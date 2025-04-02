@@ -101,8 +101,30 @@ def test_torch_training_loop(model_kls):
 
     settings = model_kls.settings_kls()
 
+    if model_kls.model_type == ModelType.DIFFUSION:
+        #WIP pasted from last else case
+        # We test the model for all supported input spatial dimensions
+        for spatial_dims in model_kls.supported_num_spatial_dims:
+            if hasattr(settings, "spatial_dims"):
+                settings.spatial_dims = spatial_dims
+
+            model = model_kls(
+                in_channels=NUM_INPUTS,
+                out_channels=NUM_OUTPUTS,
+                input_shape=INPUT_SHAPE[:spatial_dims],
+                settings=settings,
+            )
+            model = train_model(model, (NUM_INPUTS, *INPUT_SHAPE[:spatial_dims]))
+
+            # We test if models claiming to be onnx exportable really are post training.
+            # See https://pytorch.org/tutorials/beginner/onnx/export_simple_model_to_onnx_tutorial.html
+            if model.onnx_supported:
+                with tempfile.NamedTemporaryFile(mode="w", suffix=".onnx") as dst:
+                    sample = torch.rand(1, NUM_INPUTS, *INPUT_SHAPE[:spatial_dims])
+                    export_to_onnx(model, sample, dst.name)
+                    onnx_load_and_infer(dst.name, sample)
     # for GNN models we test them with a fake 2d regular grid
-    if model_kls.model_type == ModelType.GRAPH:
+    elif model_kls.model_type == ModelType.GRAPH:
         if hasattr(model_kls, "rank_zero_setup"):
             model_kls.rank_zero_setup(settings, meshgrid(64, 64))
 

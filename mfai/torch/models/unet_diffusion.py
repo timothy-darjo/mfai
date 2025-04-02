@@ -86,7 +86,7 @@ class UnetDiffusion(ModelABC, nn.Module):
     supported_num_spatial_dims = (2,)
     num_spatial_dims: int = 2
     features_last: bool = False
-    model_type: int = ModelType.CONVOLUTIONAL
+    model_type: int = ModelType.DIFFUSION
     register: bool = True
     def __init__(
         self,
